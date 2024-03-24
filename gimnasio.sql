@@ -1,7 +1,7 @@
 -- Apuntamos a la base de datos a ocupar.
 USE curso53;
 
--- Creacion tabla clientes.
+-- Creacion tabla Clientes.
 CREATE TABLE Clientes (
     id INT,
     nombre VARCHAR(50) NOT NULL,
@@ -9,14 +9,14 @@ CREATE TABLE Clientes (
     RUT INT NOT NULL UNIQUE,
     correo_electronico VARCHAR(75) NOT NULL);
 
--- Creacion tabla matriculas.
+-- Creacion tabla Matriculas.
 CREATE TABLE Matriculas (
     id_cliente INT,
     monto FLOAT,
     estado BOOLEAN,
     RUT_cliente INT NOT NULL);
 
--- Modificacion tabla clientes, asignamos campo "id"
+-- Modificacion tabla Clientes, asignamos campo "id"
 -- como clave primaria.
 ALTER TABLE Clientes ADD PRIMARY KEY (id);
 -- modificamos el campo id que se autocomplete incrimentandose con uno.
@@ -24,7 +24,7 @@ ALTER TABLE Clientes MODIFY COLUMN id INT AUTO_INCREMENT;
 -- modificamos el campo monto de FLOAT a INT
 ALTER TABLE Matriculas MODIFY COLUMN monto INT;
 
--- Ingreso de los registros, tabla clientes.
+-- Ingreso de los registros, tabla Clientes.
 INSERT INTO Clientes
     (nombre, apellido, RUT, correo_electronico)
 VALUES
@@ -35,14 +35,14 @@ VALUES
     ('Cliente 5', 'Apellido cliente 5', '555555555', 'cliente5@email.com');
 
 -- Actualizas el campo id_cliente en la tabla Matriculas,
--- mediante comparaciones de RUT_cliente en tabla matricula
--- con el RUT en tabla clientes.
+-- mediante comparaciones de RUT_cliente en tabla Matriculas
+-- con el RUT en tabla Clientes.
 UPDATE Matriculas AS m
 INNER JOIN Clientes AS c ON m.RUT_cliente = c.RUT
 SET m.id_cliente = c.id;
 
 
--- Ingreso de los registros, tabla matricula.
+-- Ingreso de los registros, tabla Matricula.
 INSERT INTO Matriculas
 (Matriculas.id_cliente, monto, estado, RUT_cliente)
 VALUES
@@ -62,7 +62,7 @@ SELECT correo_electronico, id, monto, estado FROM Clientes
 INNER JOIN Matriculas ON Clientes.id = Matriculas.id_cliente
 ORDER BY Matriculas.monto;
 
--- Agregamos una matricula nueva a un RUT existente.
+-- Agregamos matricula nueva a un RUT existente.
 INSERT INTO Matriculas
 (Matriculas.id_cliente, monto, estado, RUT_cliente)
 VALUES
@@ -70,14 +70,28 @@ VALUES
     ((SELECT c.id FROM Clientes AS c WHERE c.RUT = '555555555'),'32500', False, '555555555');
 
 -- Seleccionar los clientes con mas de una matricula
-SELECT id_cliente, COUNT(monto) AS 'nr. de registros', SUM(monto) AS 'monto total' FROM Matriculas GROUP BY id_cliente HAVING COUNT(monto) >= 2;
+SELECT id_cliente, COUNT(monto) AS 'nr. de registros', SUM(monto) AS 'monto total'
+    FROM Matriculas
+    GROUP BY id_cliente
+    HAVING COUNT(monto) >= 2;
 
 -- Seleccionar y agrupar la informacion de los clientes
 -- con una o mas matriculas.
-SELECT Clientes.id, correo_electronico, RUT, estado, COUNT(id_cliente) AS 'nr. de registros', SUM(monto) AS 'monto total' FROM Clientes INNER JOIN Matriculas ON Clientes.id = Matriculas.id_cliente GROUP BY Clientes.id, correo_electronico, RUT, Matriculas.estado;
+SELECT Clientes.id, correo_electronico, RUT, estado, COUNT(id_cliente) AS 'nr. de registros', SUM(monto) AS 'monto total'
+    FROM Clientes
+    INNER JOIN Matriculas ON Clientes.id = Matriculas.id_cliente
+    GROUP BY Clientes.id, correo_electronico, RUT, Matriculas.estado;
 
 -- Seleccionar registros que tienen mas de una matricula con mismos estados
-SELECT Clientes.id, correo_electronico, RUT, Matriculas.estado, COUNT(id_cliente) AS 'nr. de registros', SUM(monto) AS 'monto total' FROM Clientes INNER JOIN Matriculas ON Clientes.id = Matriculas.id_cliente GROUP BY Clientes.id, correo_electronico, RUT, Matriculas.estado HAVING COUNT(id_cliente) >= 2;
+SELECT Clientes.id, correo_electronico, RUT, Matriculas.estado, COUNT(id_cliente) AS 'nr. de registros', SUM(monto) AS 'monto total'
+    FROM Clientes
+    INNER JOIN Matriculas ON Clientes.id = Matriculas.id_cliente
+    GROUP BY Clientes.id, correo_electronico, RUT, Matriculas.estado
+    HAVING COUNT(id_cliente) >= 2;
 
 -- Seleccionar registros que tienen mas de una matricula con mismo y distintos estados
-SELECT Clientes.id, correo_electronico, RUT, COUNT(id_cliente) AS 'nr. de registros', SUM(monto) AS 'monto total' FROM Clientes INNER JOIN Matriculas ON Clientes.id = Matriculas.id_cliente GROUP BY Clientes.id, correo_electronico, RUT HAVING COUNT(id_cliente) >= 2;
+SELECT Clientes.id, correo_electronico, RUT, COUNT(id_cliente) AS 'nr. de registros', SUM(monto) AS 'monto total'
+    FROM Clientes
+    INNER JOIN Matriculas ON Clientes.id = Matriculas.id_cliente
+    GROUP BY Clientes.id, correo_electronico, RUT
+    HAVING COUNT(id_cliente) >= 2;
